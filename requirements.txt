@@ -1,0 +1,11 @@
+torch
+torchvision
+tensorboard
+numpy
+pillow
+opencv-python
+flask
+timm
+pytorch-grad-cam
+onnx
+onnxruntime

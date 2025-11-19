@@ -1,5 +1,0 @@
-torch
-torchvision
-Pillow
-
-"Firstchange location according to the device, Then run mobilenetv2.py, and then run mobilenetv2run.py"

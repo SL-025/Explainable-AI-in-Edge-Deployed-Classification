@@ -1,8 +1,0 @@
-Image: test.jpg
-bird      : 11.46%
-cat       : 31.13%
-dog       : 27.43%
-horse     : 8.75%
-ship      : 21.23%
-Predicted: cat
-

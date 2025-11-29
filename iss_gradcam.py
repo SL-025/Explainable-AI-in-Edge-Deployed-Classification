@@ -10,14 +10,14 @@ import numpy as np
 from skimage.metrics import structural_similarity as ssim
 import numpy as np
 import cv2
-
+from matplotlib.gridspec import GridSpec
 
 
 DATA_DIR   = r"D:\MVIT\data"
 OUT_DIR    = r"D:\MVIT\MVIT_C10"
 MODEL_NAME = "mobilevit_s" 
 IMG_SIZE   = 224
-N_SAMPLES  = 6
+N_SAMPLES  = 4
 
 MEAN = (0.4914, 0.4822, 0.4465)
 STD  = (0.2470, 0.2435, 0.2616)
@@ -62,7 +62,7 @@ def explain_prediction(class_name, cam):
 def detect_cam_region(cam):
     """
     Detects the region of highest activation in the CAM.
-    Returns: string like 'upper-left', 'center', 'lower-right'
+    Returns: string like 'upper left', 'center', 'lower right'
     """
     cam = cam.cpu().numpy()
     h, w = cam.shape
@@ -291,71 +291,93 @@ def main():
     test_ds = datasets.CIFAR10(root=DATA_DIR, train=False, download=True, transform=tf)
     print("Test images:", len(test_ds))
 
+
     # visualization
     N = min(N_SAMPLES, len(test_ds))
     print(f"Visualizing {N} random images...")
-    plt.figure(figsize=(10, 2*N+2))
+
+    fig = plt.figure(figsize=(20, 3.8 * N))
+    gs = GridSpec(N, 4, figure=fig, width_ratios=[1, 1, 2.2, 0.1])
 
     for i in range(N):
         idx = random.randrange(0, len(test_ds))
         img, true_id = test_ds[idx]
         x = img.unsqueeze(0).to(device)
 
-        #forward pass WITH gradients
         logits = model(x)
         probs = torch.softmax(logits, dim=1)[0]
         pred_id = int(probs.argmax().item())
-        pred_p  = float(probs[pred_id].item())
+        pred_p = float(probs[pred_id].item())
 
         cam = gc(logits, class_idx=pred_id)
-        cam_up = F.interpolate(cam, size=img.shape[1:], mode='bilinear', align_corners=False)[0,0]
-        cam_up = cam_up.clamp(0,1).cpu()
+        cam_up = F.interpolate(cam, size=img.shape[1:], mode='bilinear', align_corners=False)[0, 0]
+        cam_up = cam_up.clamp(0, 1).cpu()
 
-        #create perturbed version of the image
         perturbed_img = apply_small_perturbation(img)
         x2 = perturbed_img.unsqueeze(0).to(device)
-
         logits2 = model(x2)
         cam2 = gc(logits2, class_idx=pred_id)
-        cam2_up = F.interpolate(cam2, size=img.shape[1:], mode='bilinear', align_corners=False)[0,0]
-        cam2_up = cam2_up.clamp(0,1).cpu()
+        cam2_up = F.interpolate(cam2, size=img.shape[1:], mode='bilinear', align_corners=False)[0, 0]
+        cam2_up = cam2_up.clamp(0, 1).cpu()
 
-        #compute ISS
         iss_score = compute_iss(cam_up.numpy(), cam2_up.numpy())
-        print(f"ISS (stability) for {class_names[pred_id]}: {iss_score:.3f}")
 
+        #explanation 
         region = detect_cam_region(cam_up)
         edge_info = detect_edge_strength(img, cam_up)
         color_info = detect_color_feature(img, cam_up)
 
-        explanation = generate_model_based_explanation(
-            class_names[pred_id],
-            region,
-            edge_info,
-            color_info
+        explanation_text = (
+            f"The model predicted **{class_names[pred_id]}** because most activation "
+            f"concentrated in the **{region}** region.\n"
+            
+            f"It primarily focused on the object's **{edge_info}**, which indicates the "
+            f"model relied on shape and structural boundaries.\n"
+            
+            f"The highlighted area also showed a **{color_info}**, suggesting color played "
+            f"a supporting role in the decision.\n"
+            
+            "Together, these visual cues guided the model toward its final prediction."
         )
-        print(f"[{class_names[pred_id]}] -> {explanation}")
 
-
-        #denormalize image
         disp = img.clone()
         for c in range(3):
-            disp[c] = disp[c]*STD[c] + MEAN[c]
-        disp = disp.clamp(0,1).permute(1,2,0).cpu().numpy()
+            disp[c] = disp[c] * STD[c] + MEAN[c]
+        disp = disp.clamp(0, 1).permute(1, 2, 0).cpu().numpy()
 
-        plt.subplot(N, 2, 2*i+1)
-        plt.imshow(disp); plt.axis('off')
-        plt.title(
-            f"GT: {class_names[true_id]}\nPred: {class_names[pred_id]} ({pred_p:.2f})",
-            fontsize=9
+        #original image for result
+        ax1 = fig.add_subplot(gs[i, 0])
+        ax1.imshow(disp)
+        ax1.axis('off')
+        ax1.set_title(
+            f"Original • GT: {class_names[true_id]} • Pred: {class_names[pred_id]} ({pred_p:.2f})",
+            fontsize=9,
+            pad=10  # pushes the title below the image
         )
 
-        #heatmap + explanation
-        plt.subplot(N, 2, 2*i+2)
-        plt.imshow(disp, alpha=0.6)
-        plt.imshow(cam_up, cmap='jet', alpha=0.4)
-        plt.axis('off')
-        plt.title(f"Grad-CAM\n{explanation}\nISS={iss_score:.2f}", fontsize=7)
+
+        #gradcam for result
+        ax2 = fig.add_subplot(gs[i, 1])
+        ax2.imshow(disp, alpha=0.6)
+        ax2.imshow(cam_up, cmap='jet', alpha=0.45)
+        ax2.axis('off')
+        ax2.set_title("Grad-CAM", fontsize=9)
+
+        #explanation for result
+        ax3 = fig.add_subplot(gs[i, 2])
+        ax3.axis('off')
+        ax3.set_title("Explanation", fontsize=12)
+
+        ax3.text(
+            0, 1,
+            f"Prediction: {class_names[pred_id]}\n"
+            f"ISS Score: {iss_score:.3f}\n\n"
+            f"{explanation_text}",
+            fontsize=8.8,
+            ha='left',
+            va='top',
+            wrap=True
+        )
 
     plt.tight_layout()
     plt.show()

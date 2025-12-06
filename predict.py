@@ -3,27 +3,29 @@ import torch, timm
 from PIL import Image
 from torchvision import transforms
 from pathlib import Path
-
+BASE_DIR = Path(__file__).resolve().parent
 #In IMG_PATH any pathof an Image can be setted to test its prediction But it should be in the same folder.
-IMG_PATH = "test.jpg"
+IMG_PATH = BASE_DIR / "test_images" / "car.jpg"
 MODEL_NAME  = "mobilevit_s"
-OUT_DIR     = "MVIT_C10"  # must match train_c10.py's OUT_DIR
-CKPT_PATH   = str(Path(OUT_DIR) / "checkpoints" / "best.pth")
-CLASSES_TXT = str(Path(OUT_DIR) / "artifacts" / "classes.txt")
+OUT_DIR     = "MVIT_C10"  #this should match with the location in train_c10.py
+OUT_DIR_PATH = BASE_DIR / OUT_DIR
+CKPT_PATH    = OUT_DIR_PATH / "checkpoints" / "best.pth"
+CLASSES_TXT  = OUT_DIR_PATH / "artifacts" / "classes.txt"
 IMG_SIZE    = 224
 TOPK        = 5
 
 
-def load_classes(txt_path):
-    if not os.path.exists(txt_path):
+
+def load_classes(txt_path: Path):
+    if not txt_path.exists():
         raise FileNotFoundError(f"classes file not found: {txt_path}")
-    with open(txt_path, "r", encoding="utf-8") as f:
+    with txt_path.open("r", encoding="utf-8") as f:
         classes = [line.strip() for line in f if line.strip()]
     return classes
 
 
 def main():
-    if not os.path.exists(IMG_PATH):
+    if not IMG_PATH.exists():
         raise FileNotFoundError( f"Image not found: {IMG_PATH}. "
             "Place an image in this folder and update IMG_PATH.")
 

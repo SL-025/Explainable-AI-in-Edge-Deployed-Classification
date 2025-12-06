@@ -105,11 +105,11 @@ def detect_color_feature(img, cam):
 
 
 def generate_model_based_explanation(class_name, region, edge_info, color_info):
-    explanation = ( f"The model predicted *{class_name}* because its attention was strongest "
-        f"in the *{region} region* of the image.\n\n"
-        f"The Grad-CAM map shows the model relied on *{edge_info}*, indicating it "
+    explanation = ( f"The model predicted **{class_name}** because its attention was strongest "
+        f"in the **{region} region** of the image.\n\n"
+        f"The Grad-CAM map shows the model relied on **{edge_info}**, indicating it "
         f"was focusing on the object's structure or outline.\n\n"
-        f"In addition, the model attended to a *{color_info}*, suggesting color "
+        f"In addition, the model attended to a **{color_info}**, suggesting color "
         f"also contributed to the prediction.\n\n"
         f"These combined visual cues influenced the model's final decision.")
     return explanation
@@ -139,7 +139,7 @@ def apply_small_perturbation(img_tensor):
 
 
 class GradCAM:
-    def _init_(self, model: nn.Module, target_layer: nn.Module):
+    def __init__(self, model: nn.Module, target_layer: nn.Module):
         self.model = model
         self.target_layer = target_layer
         self.activations = None
@@ -153,7 +153,7 @@ class GradCAM:
     def _save_gradient(self, module, grad_in, grad_out):
         self.gradients = grad_out[0].detach()
 
-    def _call_(self, logits, class_idx=None):
+    def __call__(self, logits, class_idx=None):
         if class_idx is None:
             class_idx = int(logits.argmax(dim=1).item())
         self.model.zero_grad(set_to_none=True)
@@ -222,7 +222,7 @@ def main():
             print("ERROR: No Conv2d layer found for Grad-CAM.")
             sys.exit(1)
     else:
-        print("Using target conv layer:", target_conv._class.name_)
+        print("Using target conv layer:", target_conv.__class__.__name__)
 
     gc = GradCAM(model, target_conv)
 
@@ -265,11 +265,11 @@ def main():
         edge_info = detect_edge_strength(img, cam_up)
         color_info = detect_color_feature(img, cam_up)
 
-        explanation_text = (f"The model predicted *{class_names[pred_id]}* because most activation "
-            f"concentrated in the *{region}* region.\n"
-            f"It primarily focused on the object's *{edge_info}*, which indicates the "
+        explanation_text = (f"The model predicted **{class_names[pred_id]}** because most activation "
+            f"concentrated in the **{region}** region.\n"
+            f"It primarily focused on the object's **{edge_info}**, which indicates the "
             f"model relied on shape and structural boundaries.\n"
-            f"The highlighted area also showed a *{color_info}*, suggesting color played "
+            f"The highlighted area also showed a **{color_info}**, suggesting color played "
             f"a supporting role in the decision.\n"
             "Together, these visual cues guided the model toward its final prediction.")
 
@@ -281,7 +281,7 @@ def main():
         ax1 = fig.add_subplot(gs[i, 0])
         ax1.imshow(disp)
         ax1.axis('off')
-        ax1.set_title(f"Original â¢ GT: {class_names[true_id]} â¢ Pred: {class_names[pred_id]} ({pred_p:.2f})",
+        ax1.set_title(f"Original • GT: {class_names[true_id]} • Pred: {class_names[pred_id]} ({pred_p:.2f})",
             fontsize=9,pad=10)
 
         ax2 = fig.add_subplot(gs[i, 1])
@@ -296,11 +296,22 @@ def main():
             f"ISS Score: {iss_score:.3f}\n\n" 
             f"{explanation_text}",fontsize=8.8,ha='left',va='top',wrap=True)
 
-    plt.tight_layout()
-    plt.show()
-    gc.close()
-    print("Done.")
+        results_dir = out_dir / "results"
+        results_dir.mkdir(parents=True, exist_ok=True)
 
-if __name__ == "_main_":
+        out_path = results_dir / "iss_gradcam_cifar10.png"
+        plt.tight_layout()
+        plt.savefig(out_path, dpi=200, bbox_inches="tight")
+        gc.close()
+        print(f"Saved Grad-CAM + ISS grid to: {out_path}")
+
+        # Optional: only show figure when running locally (not in Docker)
+        if os.environ.get("SHOW_FIG", "0") == "1":
+            plt.show()
+
+
+
+
+
+if __name__ == "__main__":
     main()
-

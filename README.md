@@ -60,6 +60,7 @@ Requirements:
 - Docker Desktop (Windows/macOS) OR Docker Engine (Linux)
 Check installation: docker --version
 
+
 # 2. LOCAL PYTHON USAGE (OPTION-A)
 ## 2.1. Download the Repository
 

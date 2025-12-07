@@ -12,12 +12,18 @@ import cv2
 from matplotlib.gridspec import GridSpec
 import torchvision.transforms.functional as TF
 
-#Downloads the CIFAR-10 dataset if not already present in "data" folder and then predicts.
-DATA_DIR   = os.environ.get("CIFAR10_DIR", "data")
-OUT_DIR    = os.environ.get("MVIT_OUT_DIR", "MVIT_C10")
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+DATA_DIR = Path(os.environ.get("CIFAR10_DIR", PROJECT_ROOT / "data")).resolve()
+OUT_DIR  = Path(os.environ.get("MVIT_OUT_DIR", SCRIPT_DIR / "MVIT_C10")).resolve()
 MODEL_NAME = "mobilevit_s"
 IMG_SIZE   = 224
 N_SAMPLES  = 4
+
+CKPT_PATH   = OUT_DIR / "checkpoints" / "best.pth"
+CLASSES_TXT = OUT_DIR / "artifacts" / "classes.txt"
+RESULTS_DIR = OUT_DIR / "iss_gradcam_results"
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 MEAN = (0.4914, 0.4822, 0.4465)
 STD  = (0.2470, 0.2435, 0.2616)
 

@@ -5,7 +5,7 @@ from torchvision import transforms
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 #In IMG_PATH any pathof an Image can be setted to test its prediction But it should be in the same folder.
-IMG_PATH = BASE_DIR / "test_images" / "car.jpg"
+IMG_PATH = BASE_DIR / "test_images" / "test.jpg"
 MODEL_NAME  = "mobilevit_s"
 OUT_DIR     = "MVIT_C10"  #this should match with the location in train_c10.py
 OUT_DIR_PATH = BASE_DIR / OUT_DIR

@@ -13,8 +13,11 @@ from tqdm import tqdm
 #Where "artifacts" folder will have the "classes,txt", "config.json", and "metrics.csv" files which have information about dataset.
 #And "checkpoints" folder with "best.pth" and "last.pth" files which have weights of the trained model.
 #the folder "tb" will have the TensorBoard logs.
-DATA_DIR   = os.environ.get("CIFAR10_DIR", "data")
-OUT_DIR    = os.environ.get("MVIT_OUT_DIR", "MVIT_C10")
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+
+DATA_DIR = Path(os.environ.get("CIFAR10_DIR", PROJECT_ROOT / "data")).resolve()
+OUT_DIR  = Path(os.environ.get("MVIT_OUT_DIR", SCRIPT_DIR / "MVIT_C10")).resolve()
 
 MODEL_NAME = "mobilevit_s"
 IMG_SIZE   = 224

@@ -7,15 +7,26 @@ The repository is structured to match the project requirements:
 
 ```
 /src
-    /models
-    /training
-    /scripts
+    /train_c10.py
+    /iss_gradcam.py
+    /iss_gradcam_oneimage.py 
+    /predict.py
+    /MVIT_C10
+        /artifacts
+            /classes.txt
+            /config.json
+            /metrics.csv
+        /checkpoints
+            /best.pth
+            /last.pth
+        /tb
+            /tensorboard events file
 /docs
-/experiments
+    /experiments
 /poster
     /poster.pdf
 /report
-    /FinalRepoer.pdf
+    /FinalReport.pdf
     /LatexCode
 /reports
     /Weeklyreport.pdf
@@ -94,7 +105,7 @@ If these are already present then nothing more is needed.
 If not present then first Run Training [2.5, train_c10.py]
 
 ## 2.5. Training (train_c10.py)
-
+### This is very Important to run code in SRC folder, so run " cd src" before running scripts.
 To retrain:
 ```
 python train_c10.py
@@ -115,7 +126,7 @@ mv src/MVIT_C10 src/MVIT_C10_backup
 ---
 
 ## 2.6. Prediction (predict.py)
-
+### This is very Important to run code in SRC folder, so run " cd src" before running scripts.
 1. Put an image inside:
 
 ```
@@ -131,14 +142,17 @@ IMG_PATH = "test_images/car.jpg"
 3. Run:
 
 ```
+cd src
 python predict.py
 ```
 
 ---
 
 ## 2.7. Grad‑CAM + ISS on CIFAR‑10 Test Set (iss_gradcam.py)
+### This is very Important to run code in SRC folder, so run " cd src" before running scripts.
 
 ```
+cd src
 python iss_gradcam.py
 ```
 
@@ -151,6 +165,7 @@ src/MVIT_C10/results/iss_gradcam_cifar10.png
 ---
 
 ## 2.8. Grad‑CAM + ISS on a Single Custom Image (iss_gradcam_oneimage.py)
+### This is very Important to run code in SRC folder, so run " cd src" before running scripts.
 
 1. Add an image:
 
@@ -167,15 +182,16 @@ IMG_PATH = "test_images/cat.jpg"
 3. Run:
 
 ```
+cd src
 python iss_gradcam_oneimage.py
 ```
 
-Saved results appear under `src/MVIT_C10/`.
+Saved results appear under `src/MVIT_C10/OneImage/OneImage.png`.
 
 ---
 
-# 3. DOCKER USAGE (RECOMMENDED, EXTRA CREDIT)
-Your Dockerfile:
+# 3. DOCKER USAGE (RECOMMENDED)
+Dockerfile:
 
 ```
 FROM python:3.10-slim
@@ -193,18 +209,12 @@ This creates a clean, reproducible environment.
 ---
 
 ## 3.1. Build Docker Image
-### Windows PowerShell
+### Windows PowerShell and macOS/Linux
+### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
 
 ```
 docker build -t explainable-vit .
 ```
-
-### macOS/Linux
-
-```
-docker build -t explainable-vit .
-```
-
 ---
 
 ## 3.2. Train Inside Docker
@@ -317,7 +327,7 @@ so new training results propagate automatically.
 
 ---
 
-# 7. FUTURE WORK (FROM POSTER)
+# 7. FUTURE WORK
 
 - **Edge Deployment**  
   Export MobileViT-S to ONNX/TFLite for Android/iOS and micro‑edge boards.
@@ -352,6 +362,7 @@ so new training results propagate automatically.
 src/MVIT_C10/checkpoints/
 src/MVIT_C10/artifacts/
 src/MVIT_C10/results/
+src/MVIT_C10/OneImage
 ```
 
 The project is fully reproducible on **any machine**, regardless of OS or Python version.

@@ -13,12 +13,20 @@ from iss_gradcam import (GradCAM, compute_iss, apply_small_perturbation,
     detect_cam_region, detect_edge_strength, detect_color_feature,)
 
 BASE_DIR = Path(__file__).resolve().parent
-IMG_PATH = BASE_DIR / "test_images" / "cat.jpg"
-#Update the image Name to test in IMG_PATH
-OUT_DIR    = os.environ.get("MVIT_OUT_DIR", "MVIT_C10")
-MODEL_NAME = "mobilevit_s"
-IMG_SIZE   = 224
 
+#image to test
+IMG_PATH = BASE_DIR / "test_images" / "test.jpg"   # update filename if needed
+OUT_DIR_NAME = os.environ.get("MVIT_OUT_DIR", "MVIT_C10")
+OUT_DIR      = BASE_DIR / OUT_DIR_NAME
+CKPT_PATH    = OUT_DIR / "checkpoints" / "best.pth"
+CLASSES_TXT  = OUT_DIR / "artifacts"  / "classes.txt"
+MODEL_NAME   = "mobilevit_s"
+IMG_SIZE     = 224
+
+OUT_DIR_PATH = BASE_DIR / OUT_DIR
+ONEIMAGE_DIR = OUT_DIR_PATH / "OneImage"
+ONEIMAGE_DIR.mkdir(parents=True, exist_ok=True)
+ONEIMAGE_PATH = ONEIMAGE_DIR / "OneImage.png"
 MEAN = (0.4914, 0.4822, 0.4465)
 STD  = (0.2470, 0.2435, 0.2616)
 
@@ -138,6 +146,10 @@ def run():
     plt.show()
     gc.close()
     print("\nDone.")
+
+    plt.tight_layout()
+    fig.savefig(ONEIMAGE_PATH, dpi=300, bbox_inches="tight")
+    print(f"Saved Grad-CAM figure to: {ONEIMAGE_PATH}")
 
 if __name__ == "__main__":
     run()

@@ -212,7 +212,7 @@ This creates a clean, reproducible environment.
 ## 3.1. Build Docker Image
 ### Windows PowerShell and macOS/Linux
 ### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
-
+So you can use "cd .. " if running docker immediately after python.
 ```
 docker build -t explainable-vit .
 ```
@@ -284,15 +284,37 @@ docker run --rm `
 ---
 
 # 4. run.sh (Automation Script)
-
+### Run all the commands in GitBash
 A helper script is provided to simplify Docker usage:
 
+TO build the Docker Image.
 ```
 ./run.sh build
-./run.sh train
+```
+
+To get Gradcam and ISS of 4 random test images (runs iss_gradcam.py)
+```
 ./run.sh gradcam
+```
+
+TO get Gradcam and ISS score of One single Input image(runs iss_gradcam_oneimage.py)
+```
 ./run.sh gradcam_one
+```
+
+To get predictions of top 5 classes
+```
 ./run.sh predict
+```
+
+TO re-train the model (If you need to modify, then do it in train_c10.py first)
+```
+./run.sh train ( to re train model)
+
+```
+To run all the scripts together including training:
+```
+./run.sh all
 ```
 
 ---

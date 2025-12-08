@@ -220,6 +220,8 @@ docker build -t explainable-vit .
 
 ## 3.2. Train Inside Docker
 ### PowerShell
+### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
+So you can use "cd .. " if running docker immediately after python.
 ```
 docker run --rm `
   -v ${PWD}/data:/app/data `
@@ -236,7 +238,8 @@ docker run --rm   -v "$(pwd)/data:/app/data"   -v "$(pwd)/src/MVIT_C10:/app/src/
 ---
 
 ## 3.3. CIFAR‑10 Grad‑CAM + ISS (iss_gradcam.py)
-
+### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
+So you can use "cd .. " if running docker immediately after python.
 PowerShell:
 
 ```
@@ -256,7 +259,8 @@ src/MVIT_C10/results/iss_gradcam_cifar10.png
 ---
 
 ## 3.4. Custom Image Grad‑CAM + ISS (iss_gradcam_oneimage.py)
-
+### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
+So you can use "cd .. " if running docker immediately after python.
 PowerShell:
 
 ```
@@ -270,7 +274,8 @@ docker run --rm `
 ---
 
 ## 3.5. Prediction (predict.py)
-
+### TO run this you should be in the folder: "Explainable-AI-in-Edge-Deployed-Classification"
+So you can use "cd .. " if running docker immediately after python.
 PowerShell:
 
 ```
